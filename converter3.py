@@ -1,4 +1,5 @@
 from os import path
+import os
 import subprocess
 import argparse
 from numpy import nan
@@ -6,7 +7,6 @@ import pandas as pd
 import re
 from gzip import open as gzopen
 from tqdm import tqdm
-import glob
 import warnings
 
 # old_vcf_reader_path = "/Users/dravis/Documents/Dundee/AMR/Example_VCFs/chr21_3samples_head100k_dummy.vcf"
@@ -91,9 +91,12 @@ if __name__=="__main__":
 
     if old_vcf_filepath.endswith('vcf.gz'):
         if new_vcf_filepath == "default":
-            new_vcf_filepath = glob.glob(old_vcf_filepath)[0].rstrip(".vcf.gz")+ "_updated_sample_names.vcf.gz"
+            old_vcf_directory= path.dirname(old_vcf_filepath)
+            if not path.exists(old_vcf_directory+"/updated_sample_names_output/"):
+                os.mkdir(old_vcf_directory+"/updated_sample_names_output/")
+            new_vcf_filepath = old_vcf_directory+"/updated_sample_names_output/" + os.path.basename(old_vcf_filepath).rstrip(".vcf.gz")+ "_updated_sample_names.vcf.gz"
         else:
-            new_vcf_filepath = new_vcf_filepath
+            new_vcf_filepath = path.realpath(new_vcf_filepath)
         with gzopen(old_vcf_filepath, 'rt') as old_vcf_reader:
             update_prochi_sample_names(old_vcf_reader, gd_linker, new_vcf_filepath)
     else:
